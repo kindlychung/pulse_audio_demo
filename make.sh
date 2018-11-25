@@ -1,1 +1,1 @@
-g++ main.cpp -lpulse -lpulse-simple
+g++ main.cpp bell.o -lpulse -lpulse-simple

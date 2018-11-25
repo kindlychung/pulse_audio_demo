@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "defines": [],
+            "compilerPath": "/usr/bin/clang",
+            "includePath": [
+                "${default}",
+                "/usr/include",
+                "/usr/include/c++/8"
+            ]
+        }
+    ],
+    "version": 4
+}

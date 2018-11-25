@@ -9,27 +9,31 @@
 #include <string.h>
 #include <unistd.h>
 #include <iostream>
+#include <sstream>
+
 #define BUFSIZE 1024
+extern char _binary_bell_wav_start;
+extern char _binary_bell_wav_end;
+
 int main(int argc, char *argv[]) {
+    char *p = &_binary_bell_wav_start;
+    std::stringstream byte_stream;
+    while (p != &_binary_bell_wav_end) {
+        byte_stream << *p++;
+    }
     /* The Sample format to use */
     static const pa_sample_spec ss = {PA_SAMPLE_S16LE, 44100, 2};
     pa_simple *s = NULL;
     int ret = 1;
     int error;
     /* replace STDIN with the specified file if needed */
+    int fd;
     if (argc > 1) {
-        int fd;
         if ((fd = open(argv[1], O_RDONLY)) < 0) {
             std::cerr << "failed to open " << argv[1]
                       << ", error: " << strerror(errno) << "\n";
             goto finish;
         }
-        if (dup2(fd, STDIN_FILENO) < 0) {
-            std::cerr << "failed to duplicate stream, error: "
-                      << strerror(errno) << "\n";
-            goto finish;
-        }
-        close(fd);
     }
     /* Create a new playback stream */
     if (!(s = pa_simple_new(NULL, argv[0], PA_STREAM_PLAYBACK, NULL, "playback",
@@ -49,7 +53,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "%0.0f usec    \r", (float)latency);
 #endif
         /* Read some data ... */
-        if ((r = read(STDIN_FILENO, buf, sizeof(buf))) <= 0) {
+        if ((r = read(fd, buf, sizeof(buf))) <= 0) {
             if (r == 0) /* EOF */
                 break;
             std::cerr << "read() from stdin failed: " << strerror(errno)
@@ -72,5 +76,6 @@ int main(int argc, char *argv[]) {
     ret = 0;
 finish:
     if (s) pa_simple_free(s);
+    if (fd > 0) close(fd);
     return ret;
 }
