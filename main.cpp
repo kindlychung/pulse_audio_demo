@@ -21,6 +21,8 @@ int main(int argc, char *argv[]) {
     while (p != &_binary_bell_wav_end) {
         byte_stream << *p++;
     }
+    auto byte_string = byte_stream.str();
+    size_t audio_size = byte_string.length();
     /* The Sample format to use */
     static const pa_sample_spec ss = {PA_SAMPLE_S16LE, 44100, 2};
     pa_simple *s = NULL;
@@ -40,31 +42,11 @@ int main(int argc, char *argv[]) {
                             &ss, NULL, NULL, &error))) {
         std::cerr << "pa_simple_new failed: " << pa_strerror(error) << "\n";
         goto finish;
-    }
-    for (;;) {
-        uint8_t buf[BUFSIZE];
-        ssize_t r;
-#if 0
-        pa_usec_t latency;
-        if ((latency = pa_simple_get_latency(s, &error)) == (pa_usec_t) -1) {
-            fprintf(stderr, __FILE__": pa_simple_get_latency() failed: %s\n", pa_strerror(error));
-            goto finish;
-        }
-        fprintf(stderr, "%0.0f usec    \r", (float)latency);
-#endif
-        /* Read some data ... */
-        if ((r = read(fd, buf, sizeof(buf))) <= 0) {
-            if (r == 0) /* EOF */
-                break;
-            std::cerr << "read() from stdin failed: " << strerror(errno)
-                      << '\n';
-            goto finish;
-        }
-        /* ... and play it */
-        if (pa_simple_write(s, buf, (size_t)r, &error) < 0) {
+    } else {
+        if (pa_simple_write(s, byte_string.c_str(), audio_size, &error) < 0) {
             std::cerr << "pa_simple_write() failed, error: "
                       << pa_strerror(error) << '\n';
-            goto finish;
+            return 1;
         }
     }
     /* Make sure that every single sample was played */
