@@ -3,11 +3,14 @@
         {
             "name": "Linux",
             "defines": [],
+            "intelliSenseMode": "clang-x64",
             "compilerPath": "/usr/bin/clang",
             "includePath": [
                 "${default}",
-                "/usr/include",
-                "/usr/include/c++/8"
+                "${workspaceRoot}",
+                "/usr/include/linux",
+                "/usr/local/include",
+                "/usr/include"
             ]
         }
     ],

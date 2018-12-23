@@ -9,7 +9,6 @@
 
 extern char _binary_bell_wav_start;
 extern char _binary_bell_wav_end;
-
 int play_sound(int nLoop) {
     char *p = &_binary_bell_wav_start;
     std::stringstream byte_stream;
